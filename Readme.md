@@ -17,7 +17,7 @@
 
 - ⚡ Parallel processing for faster analysis
 
---
+---
 
 ## 🛠️ Tech Stack
 
