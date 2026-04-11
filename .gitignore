@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+
+# Virtual Environment
+venv/
+env/
+
+# Environment Variables (VERY IMPORTANT)
+.env
+
+# Uploads
+uploads/
+
+# Generated reports
+static/reports/
+
+# Firebase secret key
+serviceAccountKey.json
+
+# OS files
+.DS_Store
+Thumbs.db

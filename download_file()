@@ -1,0 +1,25 @@
+from firebase_config import bucket, db
+
+email = session.get("user")
+
+# 🔍 find user document
+user_query = db.collection("users").where("email", "==", email).get()
+
+if not user_query:
+    return "User not found", 404
+
+user_doc = user_query[0].reference  # 🔥 get document reference
+
+# 🔥 Upload PDF to Firebase Storage
+blob = bucket.blob(f"reports/{email}/{final_name}")
+blob.upload_from_filename(save_path)
+blob.make_public()
+
+file_url = blob.public_url
+
+# 🔥 SAVE INSIDE USER → history subcollection
+user_doc.collection("history").add({
+    "file_name": final_name,
+    "file_url": file_url,
+    "created_at": datetime.now()
+})

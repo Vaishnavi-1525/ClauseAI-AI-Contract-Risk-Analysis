@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClauseAI — Register</title>
+
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Space Grotesk', 'sans-serif'] }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background: linear-gradient(135deg, #0a0e27 0%, #1a1a3e 100%);
+    }
+    .input-field {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(0,212,255,0.2);
+      color: white;
+    }
+    .input-field:focus {
+      outline: none;
+      border-color: #00d4ff;
+      box-shadow: 0 0 10px rgba(0,212,255,0.3);
+    }
+    .submit-btn {
+      background: linear-gradient(135deg, #00d4ff, #7928ca);
+      transition: transform 0.2s;
+    }
+    .submit-btn:hover { transform: translateY(-2px); }
+    .submit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Toast */
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(110%); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes slideOut {
+      from { opacity: 1; transform: translateX(0); }
+      to   { opacity: 0; transform: translateX(110%); }
+    }
+    .toast-enter { animation: slideIn 0.4s ease forwards; }
+    .toast-exit  { animation: slideOut 0.4s ease forwards; }
+  </style>
+</head>
+
+<body class="text-gray-300 font-sans">
+
+<!-- TOAST CONTAINER -->
+<div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3 w-80"></div>
+
+<form id="registerForm">
+  <main class="flex items-center justify-center min-h-screen px-4">
+    <div class="w-full max-w-md bg-white/5 p-8 rounded-2xl shadow-xl">
+
+      <h1 class="text-2xl text-white font-bold text-center mb-6">Create Account</h1>
+
+      <!-- Full Name -->
+      <input type="text" name="full_name" placeholder="Full Name"
+        class="input-field w-full p-3 rounded mb-4" required>
+
+      <!-- Email -->
+      <input type="email" name="email" placeholder="Email"
+        class="input-field w-full p-3 rounded mb-4" required>
+
+      <!-- Phone -->
+      <input type="tel" name="phone" placeholder="Phone"
+        class="input-field w-full p-3 rounded mb-4" required>
+
+      <!-- Password -->
+      <input type="password" id="password" name="password"
+        placeholder="Password"
+        class="input-field w-full p-3 rounded mb-4"
+        oninput="checkStrength(this.value)" required>
+
+      <!-- Strength Bar -->
+      <div class="mb-4">
+        <div class="h-1 bg-gray-700 rounded">
+          <div id="strengthBar" class="h-1 rounded transition-all duration-300" style="width:0%"></div>
+        </div>
+        <p id="strengthText" class="text-xs mt-1"></p>
+      </div>
+
+      <!-- Confirm Password -->
+      <input type="password" id="confirm" name="confirm_password"
+        placeholder="Confirm Password"
+        class="input-field w-full p-3 rounded mb-2" required>
+
+      <p id="errorMsg" class="text-red-400 text-xs hidden mb-3">
+        ❌ Passwords do not match
+      </p>
+
+      <!-- Submit -->
+      <button type="submit" id="submitBtn"
+        class="submit-btn w-full text-white py-3 rounded font-semibold">
+        Create Account
+      </button>
+
+      <p class="text-center text-sm mt-4">
+        Already have an account?
+        <a href="/login" class="text-cyan-400">Login</a>
+      </p>
+
+    </div>
+  </main>
+</form>
+
+<!-- TOAST + UTILS -->
+<script>
+lucide.createIcons();
+
+// ── Toast system ────────────────────────────────────────────
+function showToast(message, type = "success", duration = 4000) {
+  const container = document.getElementById("toast-container");
+
+  const icons = {
+    success: "✅",
+    error:   "❌",
+    info:    "📩",
+    warning: "⚠️"
+  };
+  const colors = {
+    success: "bg-green-600",
+    error:   "bg-red-600",
+    info:    "bg-cyan-600",
+    warning: "bg-yellow-600"
+  };
+
+  const toast = document.createElement("div");
+  toast.className = `
+    ${colors[type] || "bg-gray-700"}
+    toast-enter text-white px-4 py-3 rounded-xl shadow-lg
+    flex items-start gap-3 text-sm leading-snug
+  `;
+  toast.innerHTML = `
+    <span class="text-base mt-0.5">${icons[type] || "ℹ️"}</span>
+    <span class="flex-1">${message}</span>
+    <button onclick="dismissToast(this.parentElement)" class="ml-2 opacity-70 hover:opacity-100 text-lg leading-none">&times;</button>
+  `;
+
+  container.appendChild(toast);
+
+  // Auto-dismiss
+  setTimeout(() => dismissToast(toast), duration);
+}
+
+function dismissToast(toast) {
+  if (!toast || toast._dismissing) return;
+  toast._dismissing = true;
+  toast.classList.replace("toast-enter", "toast-exit");
+  setTimeout(() => toast.remove(), 400);
+}
+
+// ── Password strength ────────────────────────────────────────
+function checkStrength(password) {
+  const bar  = document.getElementById("strengthBar");
+  const text = document.getElementById("strengthText");
+  let strength = 0;
+  if (password.length > 5)          strength++;
+  if (/[A-Z]/.test(password))       strength++;
+  if (/[0-9]/.test(password))       strength++;
+  if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+  const colors = ["#ef4444","#f97316","#eab308","#22c55e","#22c55e"];
+  const labels = ["Weak","Weak","Medium","Strong","Very Strong"];
+  bar.style.width      = (strength * 25) + "%";
+  bar.style.background = colors[strength];
+  text.textContent     = password ? labels[strength] : "";
+  text.style.color     = colors[strength];
+}
+
+// ── Password match inline check ──────────────────────────────
+document.getElementById("confirm").addEventListener("input", function() {
+  const match = this.value === document.getElementById("password").value;
+  document.getElementById("errorMsg").classList.toggle("hidden", match || !this.value);
+});
+</script>
+<script>
+document.getElementById("confirm").addEventListener("input", function () {
+  const password = document.getElementById("password").value;
+  const confirm  = this.value;
+
+  const isMatch = password === confirm;
+
+  document.getElementById("errorMsg")
+    .classList.toggle("hidden", isMatch || !confirm);
+});
+</script>
+<script>
+document.getElementById("registerForm").addEventListener("submit", function (e) {
+  const password = document.getElementById("password").value;
+  const confirm  = document.getElementById("confirm").value;
+
+  if (password !== confirm) {
+    e.preventDefault(); // 🚫 stop form submit
+    showToast("Passwords do not match!", "error");
+    document.getElementById("errorMsg").classList.remove("hidden");
+  }
+});
+</script>
+<!-- FIREBASE REGISTER -->
+<script type="module">
+import { initializeApp }
+  from "https://www.gstatic.com/firebasejs/10.7.2/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, sendEmailVerification }
+  from "https://www.gstatic.com/firebasejs/10.7.2/firebase-auth.js";
+import { getFirestore, collection, addDoc }
+  from "https://www.gstatic.com/firebasejs/10.7.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyASC040BZIfnupZkoKjl9nZXke_h0PuFjY",
+  authDomain:        "clauseai1525.firebaseapp.com",
+  projectId:         "clauseai1525",
+  storageBucket:     "clauseai1525.appspot.com",
+  messagingSenderId: "380055122773",
+  appId:             "1:380055122773:web:1ec9ed1ce80c400c4975dc"
+};
+
+const fireApp = initializeApp(firebaseConfig);
+const auth    = getAuth(fireApp);
+const db      = getFirestore(fireApp);
+
+document.getElementById("registerForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const name     = document.querySelector("input[name='full_name']").value.trim();
+  const email    = document.querySelector("input[name='email']").value.trim();
+  const phone    = document.querySelector("input[name='phone']").value.trim();
+  const password = document.querySelector("input[name='password']").value.trim();
+  const confirm  = document.querySelector("input[name='confirm_password']").value.trim();
+  const btn      = document.getElementById("submitBtn");
+
+  // Client-side validation
+  if (password !== confirm) {
+    showToast("Passwords do not match.", "error");
+    document.getElementById("errorMsg").classList.remove("hidden");
+    return;
+  }
+
+  btn.textContent = "Creating account...";
+  btn.disabled    = true;
+
+  try {
+    // STEP 1 — Create Firebase user
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+
+    // STEP 2 — Send verification email
+    await sendEmailVerification(user);
+
+    // STEP 3 — Save to Firestore
+    await addDoc(collection(db, "users"), {
+      name,
+      email,
+      phone,
+      created_at: new Date()
+    });
+
+    // ✅ Toast instead of alert
+    showToast("Account created! A verification email has been sent to <strong>" + email + "</strong>. Please verify before logging in.", "info", 6000);
+
+    // Redirect after delay so user can read the toast
+    setTimeout(() => {
+      window.location.href = "/login";
+    }, 3500);
+
+  } catch (error) {
+    // User-friendly Firebase error messages
+    let message = "Registration failed. Please try again.";
+
+    if      (error.code === "auth/email-already-in-use")  message = "This email is already registered. Please log in.";
+    else if (error.code === "auth/invalid-email")         message = "Invalid email address.";
+    else if (error.code === "auth/weak-password")         message = "Password must be at least 6 characters.";
+    else if (error.code === "auth/network-request-failed") message = "Network error. Check your connection.";
+
+    showToast(message, "error");
+
+    btn.textContent = "Create Account";
+    btn.disabled    = false;
+  }
+});
+</script>
+
+</body>
+</html>

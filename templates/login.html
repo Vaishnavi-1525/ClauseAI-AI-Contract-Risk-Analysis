@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClauseAI — Login</title>
+
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      background: linear-gradient(135deg, #0a0e27 0%, #1a1a3e 100%);
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .input-field {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(0,212,255,0.2);
+      color: white;
+    }
+    .input-field:focus {
+      border-color: #00d4ff;
+      outline: none;
+    }
+    .submit-btn {
+      background: linear-gradient(135deg, #00d4ff, #7928ca);
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(100%); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    .animate-slideIn {
+      animation: slideIn 0.4s ease;
+    }
+  </style>
+</head>
+
+<body class="text-gray-300">
+
+<!-- TOAST CONTAINER -->
+<div id="toast-container" class="fixed top-5 right-5 z-50 space-y-3"></div>
+
+<form id="loginForm">
+  <div class="flex items-center justify-center min-h-screen">
+    <div class="bg-white/5 backdrop-blur-lg p-8 rounded-2xl w-full max-w-md">
+
+      <h2 class="text-2xl text-white font-bold text-center mb-6">Login</h2>
+
+      <!-- Email -->
+      <input type="email" id="email" placeholder="Email"
+        class="input-field w-full p-3 rounded mb-4" required>
+
+      <!-- Password -->
+      <input type="password" id="password" placeholder="Password"
+        class="input-field w-full p-3 rounded mb-4" required>
+
+      <!-- Error Message Box -->
+      <div id="error-box" class="hidden bg-red-500/20 border border-red-500 text-red-300 text-sm px-4 py-2 rounded mb-4">
+        ❌ <span id="error-text"></span>
+      </div>
+
+      <!-- Button -->
+      <button type="submit" id="loginBtn"
+        class="submit-btn w-full text-white py-3 rounded font-semibold">
+        Login
+      </button>
+
+      <p class="text-center mt-4 text-sm">
+        Don't have an account?
+        <a href="/register" class="text-cyan-400">Register</a>
+      </p>
+
+    </div>
+  </div>
+</form>
+
+<!-- TOAST FUNCTION -->
+<script>
+function showToast(message, type = "success") {
+    const container = document.getElementById("toast-container");
+    const toast = document.createElement("div");
+    let bgColor = type === "error" ? "bg-red-500" : "bg-green-500";
+    let icon    = type === "error" ? "❌" : "✅";
+    toast.className = `${bgColor} text-white px-5 py-3 rounded-xl shadow-lg flex items-center gap-3 animate-slideIn`;
+    toast.innerHTML = `<span>${icon}</span><span>${message}</span>`;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+
+function showError(message) {
+    const box  = document.getElementById("error-box");
+    const text = document.getElementById("error-text");
+    text.textContent = message;
+    box.classList.remove("hidden");
+}
+</script>
+
+<!-- FIREBASE LOGIN -->
+<script type="module">
+import { initializeApp }            from "https://www.gstatic.com/firebasejs/10.7.2/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey:            "AIzaSyASC040BZIfnupZkoKjl9nZXke_h0PuFjY",
+  authDomain:        "clauseai1525.firebaseapp.com",
+  projectId:         "clauseai1525",
+  storageBucket:     "clauseai1525.appspot.com",
+  messagingSenderId: "380055122773",
+  appId:             "1:380055122773:web:1ec9ed1ce80c400c4975dc"
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+document.getElementById("loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const email    = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const btn      = document.getElementById("loginBtn");
+
+    btn.textContent = "Logging in...";
+    btn.disabled    = true;
+
+    try {
+        // STEP 1 — Firebase authentication
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        // STEP 2 — Email verification check
+        if (!user.emailVerified) {
+            showError("Please verify your email before logging in.");
+            btn.textContent = "Login";
+            btn.disabled    = false;
+            return;
+        }
+
+        // ✅ STEP 3 — Tell Flask to set the server-side session
+        //    THIS IS THE MISSING PIECE — without this, login_required
+        //    never sees session["user"] and keeps redirecting to /login
+        const sessionRes = await fetch("/sessionLogin", {
+            method:  "POST",
+            headers: { "Content-Type": "application/json" },
+            body:    JSON.stringify({ email: email })
+        });
+
+        const sessionData = await sessionRes.json();
+
+        if (sessionData.status !== "success") {
+            showError("Session could not be created. Please try again.");
+            btn.textContent = "Login";
+            btn.disabled    = false;
+            return;
+        }
+
+        // STEP 4 — Store token locally (optional but useful)
+        const token = await user.getIdToken();
+        localStorage.setItem("firebase_token", token);
+        localStorage.setItem("user_email", email);
+
+        showToast("Login successful!", "success");
+
+        // STEP 5 — Redirect AFTER session is confirmed
+        setTimeout(() => {
+            window.location.href = "/index";
+        }, 800);  // small delay so toast is visible
+
+    } catch (error) {
+        let message = "Login failed. Please try again.";
+
+        // User-friendly Firebase error messages
+        if (error.code === "auth/user-not-found")       message = "No account found with this email.";
+        else if (error.code === "auth/wrong-password")  message = "Incorrect password.";
+        else if (error.code === "auth/invalid-email")   message = "Invalid email format.";
+        else if (error.code === "auth/too-many-requests") message = "Too many attempts. Please try later.";
+
+        showError(message);
+        showToast(message, "error");
+
+        btn.textContent = "Login";
+        btn.disabled    = false;
+    }
+});
+</script>
+
+</body>
+</html>

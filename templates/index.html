@@ -1,0 +1,985 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClauseAI</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Sohne:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Space Grotesk', 'sans-serif'],
+            display: ['Sohne', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    html, body { height: 100%; margin: 0; }
+    .glass-nav {
+      background: rgba(10, 14, 39, 0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(0, 212, 255, 0.1);
+    }
+    .gradient-btn {
+      background: linear-gradient(135deg, #00d4ff 0%, #0099ff 50%, #7928ca 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .gradient-btn::before {
+      z-index: 0 !important;
+    }
+    .gradient-btn:hover::before {
+      opacity: 1;
+    }
+    .gradient-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 25px 50px rgba(0, 212, 255, 0.4);
+    }
+    .hero-gradient {
+      background: radial-gradient(ellipse 100% 80% at 50% 0%, rgba(0, 212, 255, 0.15) 0%, transparent 50%),
+                  radial-gradient(ellipse 80% 60% at 20% 100%, rgba(121, 40, 202, 0.1) 0%, transparent 60%),
+                  linear-gradient(135deg, #0a0e27 0%, #1a1a3e 100%);
+    }
+    .card-glass {
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(0, 212, 255, 0.15);
+    }
+    .upload-zone {
+      background: linear-gradient(135deg, rgba(0, 212, 255, 0.08), rgba(121, 40, 202, 0.08));
+      border: 2px dashed rgba(0, 212, 255, 0.4);
+      transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .upload-zone:hover {
+      border-color: rgba(0, 212, 255, 0.8);
+      background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(121, 40, 202, 0.15));
+      box-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
+    }
+    .feature-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(0, 212, 255, 0.1);
+      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .feature-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 25px 60px rgba(0, 212, 255, 0.25);
+      border-color: rgba(0, 212, 255, 0.3);
+      background: rgba(0, 212, 255, 0.08);
+    }
+    .glow-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.25;
+      pointer-events: none;
+    }
+    .section-fade { animation: sectionFade 0.8s ease-out both; }
+    @keyframes sectionFade {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-15px); }
+    }
+    .float-anim { animation: float 6s ease-in-out infinite; }
+    @keyframes pulse-soft {
+      0%, 100% { opacity: 0.15; }
+      50% { opacity: 0.3; }
+    }
+    .pulse-orb { animation: pulse-soft 5s ease-in-out infinite; }
+    .smooth-scroll { scroll-behavior: smooth; }
+    .nav-link {
+      position: relative;
+      transition: color 0.3s;
+    }
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -2px; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #00d4ff, #7928ca);
+      transform: scaleX(0);
+      transition: transform 0.3s;
+      border-radius: 1px;
+    }
+    .nav-link:hover::after { transform: scaleX(1); }
+    .creator-card {
+      background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(121, 40, 202, 0.1));
+      border: 1px solid rgba(0, 212, 255, 0.2);
+      transition: all 0.3s;
+    }
+    .creator-card:hover {
+      background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(121, 40, 202, 0.15));
+      border-color: rgba(0, 212, 255, 0.3);
+      box-shadow: 0 0 30px rgba(0, 212, 255, 0.1);
+    }
+    .footer-gradient {
+      background: linear-gradient(180deg, rgba(10, 14, 39, 0.9) 0%, rgba(10, 14, 39, 1) 100%);
+      border-top: 1px solid rgba(0, 212, 255, 0.1);
+    }
+    .step-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(0, 212, 255, 0.1);
+      transition: all 0.4s;
+    }
+    .step-box:hover {
+      background: rgba(0, 212, 255, 0.08);
+      border-color: rgba(0, 212, 255, 0.3);
+      box-shadow: 0 0 30px rgba(0, 212, 255, 0.15);
+    }
+    .analysis-card {
+  background: rgba(255, 255, 255, 0.05); /* Glassmorphism effect */
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  width: 400px; /* Adjust based on your layout */
+}
+
+.agent-visual-container {
+  margin: 20px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #050a18; /* Darker background to make the glow pop */
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.agent-img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  /* Optional: add a slight glow to the image itself */
+  filter: drop-shadow(0 0 10px rgba(0, 242, 255, 0.2));
+}
+  </style>
+  <style>body { box-sizing: border-box; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full font-sans text-gray-300 smooth-scroll overflow-auto" style="background: linear-gradient(135deg, #0a0e27 0%, #1a1a3e 100%);"><!-- NAV -->
+  <nav class="glass-nav fixed top-0 left-0 w-full z-50">
+   <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between"><a href="#" class="flex items-center gap-2">
+     <div class="w-8 h-8 rounded-lg gradient-btn flex items-center justify-center">
+      <i data-lucide="shield-check" style="width:18px;height:18px;color:#fff;"></i>
+     </div><span class="text-xl font-display font-bold tracking-tight text-white">Clause<span style="color:#00d4ff;">AI</span></span> </a>
+    <div class="hidden md:flex items-center gap-8"><a href="#home" class="nav-link text-sm font-medium text-gray-300 hover:text-white">Home</a> <a href="#features" class="nav-link text-sm font-medium text-gray-300 hover:text-white">Features</a> <a href="#analyze" class="nav-link text-sm font-medium text-gray-300 hover:text-white">Analyze</a> <a href="#about" class="nav-link text-sm font-medium text-gray-300 hover:text-white">About</a> <a href="#contact" class="nav-link text-sm font-medium text-gray-300 hover:text-white">Contact</a>
+    </div><!-- ========================= -->
+<!-- 👤 PROFILE ICON -->
+<!-- ========================= -->
+<div class="relative inline-block text-left">
+  
+  <!-- Profile Button -->
+  <button onclick="toggleProfile()" class="flex items-center gap-2 bg-gray-800 text-white px-3 py-2 rounded-full">
+    <!-- SVG ICON -->
+  <svg 
+  xmlns="http://www.w3.org/2000/svg" 
+  width="24" 
+  height="24" 
+  viewBox="0 0 24 24" 
+  fill="none" 
+  stroke="white" 
+  stroke-width="2.5" 
+  stroke-linecap="round" 
+  stroke-linejoin="round"
+>
+  <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+  <circle cx="12" cy="7" r="4"></circle>
+</svg>
+    <span id="usernameDisplay">{{ user_name }}</span>
+  </button>
+
+  <!-- Dropdown -->
+  <div id="profileDropdown" class="hidden absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg z-50">
+    
+    <div class="p-4 border-b">
+      <p class="text-sm text-gray-600">Logged in as</p>
+      <p class="font-semibold text-gray-800">{{ user_name }}</p>
+    </div>
+
+    <div class="flex flex-col">
+      <a href="/change-password" class="px-4 py-2 text-blue-500 hover:bg-blue-100">
+        🔑 Change Password
+      </a>
+
+      <a href="/logout" class=" px-4 py-2 text-red-500 hover:bg-gray-100">
+        🚪 Logout
+      </a>
+      <a href="/history-page" class="px-4 py-2 text-purple-500 hover:bg-gray-100">
+        📄 History
+      </a>
+    </div>
+    
+  </div>
+</div>
+
+<!-- JS -->
+<script>
+function toggleProfile() {
+  const dropdown = document.getElementById("profileDropdown");
+  dropdown.classList.toggle("hidden");
+}
+// Close the dropdown if the user clicks outside of it
+window.addEventListener('click', function(e) {
+  const dropdown = document.getElementById("profileDropdown");
+  const button = dropdown.previousElementSibling; // The profile button
+
+  // If the click is NOT on the button and NOT inside the dropdown
+  if (!button.contains(e.target) && !dropdown.contains(e.target)) {
+    dropdown.classList.add("hidden");
+  }
+});
+</script> <button id="mobileMenuBtn" class="md:hidden p-2 rounded-lg hover:bg-white/10 transition"> <i data-lucide="menu" style="width:22px;height:22px;color:#fff;"></i> </button>
+   </div>
+   <div id="mobileMenu" class="hidden md:hidden px-6 pb-4 space-y-3"><a href="#home" class="block text-sm font-medium text-gray-300 py-2">Home</a> <a href="#features" class="block text-sm font-medium text-gray-300 py-2">Features</a> <a href="#analyze" class="block text-sm font-medium text-gray-300 py-2">Analyze</a> <a href="#about" class="block text-sm font-medium text-gray-300 py-2">About</a> <a href="#contact" class="block text-sm font-medium text-gray-300 py-2">Contact</a>
+   </div>
+  </nav><!-- HERO -->
+  <section id="home" class="hero-gradient relative overflow-hidden pt-32 pb-24 md:pt-40 md:pb-32">
+   <div class="glow-orb pulse-orb" style="width:600px;height:600px;background:#00d4ff;top:-150px;right:-150px;"></div>
+   <div class="glow-orb pulse-orb" style="width:500px;height:500px;background:#7928ca;bottom:-100px;left:-100px;animation-delay:2s;"></div>
+   <div class="max-w-6xl mx-auto px-6 relative z-10">
+    <div class="grid md:grid-cols-2 gap-12 items-center">
+     <div class="section-fade">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-500/15 border border-cyan-500/40 mb-6"><span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span> <span class="text-xs font-semibold text-cyan-300 tracking-wide uppercase">Next-Gen AI</span>
+      </div>
+      <h1 id="heroTitle" class="font-display text-5xl md:text-6xl lg:text-7xl leading-tight tracking-tight text-white font-bold">AI-Powered Contract Risk Analysis — <em class="not-italic" style="color:#00d4ff;">Simple. Fast. Accurate.</em></h1>
+      <p id="heroSubtitle" class="mt-6 text-lg text-gray-400 leading-relaxed max-w-lg">Upload any contract and get instant legal, financial, and compliance risk insights powered by multi-agent AI.</p>
+      <div class="mt-8 flex flex-wrap gap-4"><a href="#analyze" class="gradient-btn text-white font-semibold px-8 py-3.5 rounded-full transition-all text-sm relative z-10"> Upload Document → </a> <a href="#features" class="bg-white/5 border border-cyan-500/30 text-white font-semibold px-8 py-3.5 rounded-full hover:border-cyan-500/60 hover:bg-cyan-500/15 transition-all text-sm"> Learn More </a>
+      </div>
+      <div class="mt-10 flex items-center gap-6 text-sm text-gray-400">
+       <div class="flex items-center gap-2">
+        <i data-lucide="zap" style="width:16px;height:16px;color:#00d4ff;"></i> Real-time
+       </div>
+       <div class="flex items-center gap-2">
+        <i data-lucide="lock" style="width:16px;height:16px;color:#fbe225;"></i> Secure
+       </div>
+       <div class="flex items-center gap-2">
+        <i data-lucide="award" style="width:16px;height:16px;color:#0099ff;"></i> Enterprise
+       </div>
+      </div>
+     </div>
+     <div class="relative flex justify-center float-anim">
+      <div class="w-80 h-80 md:w-96 md:h-96 relative">
+       <div class="absolute inset-4 rounded-3xl bg-gradient-to-br from-white/10 to-white/5 shadow-2xl shadow-cyan-500/20 border border-cyan-500/20 p-6 flex flex-col">
+        <div class="flex items-center gap-3 mb-4">
+         <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-400/20 to-purple-500/20 flex items-center justify-center">
+          <i data-lucide="file-text" style="width:20px;height:20px;color:#00d4ff;"></i>
+         </div>
+         <div>
+          <div class="text-sm font-semibold text-white">
+           Clause AI
+          </div>
+         </div>
+        </div>
+        <div class="agent-visual-container">
+<img src="{{ url_for('static', filename='Img/hero1.png') }}"
+     alt="AI Agent Analysis"
+     class="agent-img">  </div>
+       </div>
+       <div class="absolute -top-2 -right-2 bg-gradient-to-br from-white/20 to-white/10 rounded-2xl shadow-xl shadow-green-500/30 border border-green-500/30 px-4 py-3 flex items-center gap-2" style="animation: float 5s ease-in-out 1s infinite;">
+        <div class="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
+         <i data-lucide="check-circle" style="width:16px;height:16px;color:#22c55e;"></i>
+        </div><span class="text-xs font-semibold text-green-300">Compliant</span>
+       </div>
+       <div class="absolute -bottom-2 -right-2 bg-gradient-to-br from-white/20 to-white/10 rounded-2xl shadow-xl shadow-green-500/30 border border-green-500/30 px-4 py-3 flex items-center gap-2" style="animation: float 5s ease-in-out 1s infinite;">
+        <div class="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
+        <i data-lucide="check-circle" style="width:16px;height:16px;color:#f3d91a;"></i>
+        </div><span class="text-xs font-semibold text-green-300">Real-time</span>
+       </div>
+       <div class="absolute -bottom-2 -left-2 bg-gradient-to-br from-white/20 to-white/10 rounded-2xl shadow-xl shadow-blue-500/30 border border-blue-500/30 px-4 py-3 flex items-center gap-2" style="animation: float 4s ease-in-out 0.5s infinite;">
+        <div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
+         <i data-lucide="brain" style="width:16px;height:16px;color:#0099ff;"></i>
+        </div><span class="text-xs font-semibold text-blue-300">3 AI Agents</span>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+  </section><!-- ANALYZE -->
+  <!-- IMPORTANT: Flask form connection -->
+<form action="/analyze" method="POST" enctype="multipart/form-data" class="space-y-6">
+  <section id="analyze" class="py-24 relative" style="background:linear-gradient(180deg, rgba(10, 14, 39, 0.5) 0%, rgba(10, 14, 39, 1) 100%);">
+   <div class="max-w-4xl mx-auto px-6">
+    <div class="text-center mb-12"><span class="inline-block px-4 py-1.5 rounded-full bg-cyan-500/15 border border-cyan-500/40 text-xs font-semibold text-cyan-300 uppercase tracking-wide mb-4">Contract Analysis</span>
+     <h2 class="font-display text-4xl md:text-5xl tracking-tight text-white font-bold">Analyze Your Contract</h2>
+     <p class="mt-3 text-gray-400 max-w-md mx-auto">Upload a document or paste contract text to receive comprehensive AI-powered risk analysis.</p>
+    </div>
+    <div class="card-glass rounded-3xl shadow-2xl shadow-cyan-500/10 p-8 md:p-10">
+    <div>
+    <label class="text-sm font-semibold text-white mb-3 block">Upload PDF / DOCX</label>
+
+    <div 
+        class="upload-zone rounded-2xl p-8 text-center cursor-pointer transition border border-cyan-500/20" 
+        id="uploadZone">
+        <input 
+            type="file" 
+            name="file" 
+            id="fileInput" 
+            class="hidden"
+            accept=".pdf,.docx">
+
+        <div class="w-14 h-14 mx-auto rounded-2xl bg-cyan-500/10 flex items-center justify-center mb-4">
+            <i data-lucide="upload-cloud" style="width:28px;height:28px;color:#00d4ff;"></i>
+        </div>
+
+        <p class="text-sm font-medium text-gray-200">Drop your file here or click to upload</p>
+        <p class="text-xs text-gray-400 mt-1">PDF, DOCX up to 10MB</p>
+
+        <div id="uploadStatus" class="mt-3 text-xs font-medium text-cyan-300 hidden">
+            ✓ File selected
+        </div>
+    </div>
+    <script>
+document.getElementById("fileInput").addEventListener("change", function () {
+    const fileName = this.files[0].name;
+    localStorage.setItem("uploadedFileName", fileName);
+});
+</script>
+</div>
+
+<script>
+const uploadZone = document.getElementById("uploadZone");
+const fileInput = document.getElementById("fileInput");
+const uploadStatus = document.getElementById("uploadStatus");
+
+// Click to open file dialog
+uploadZone.addEventListener("click", () => fileInput.click());
+
+// File selected manually
+fileInput.addEventListener("change", () => {
+    if (fileInput.files.length > 0) {
+        uploadStatus.classList.remove("hidden");
+        uploadStatus.textContent = "✓ " + fileInput.files[0].name;
+    }
+});
+
+// 🟦 Prevent browser from opening the file
+["dragenter", "dragover", "dragleave", "drop"].forEach(eventName => {
+    uploadZone.addEventListener(eventName, (e) => e.preventDefault());
+    document.body.addEventListener(eventName, (e) => e.preventDefault());
+});
+
+// Highlight on drag over
+["dragenter", "dragover"].forEach(eventName => {
+    uploadZone.addEventListener(eventName, () => {
+        uploadZone.classList.add("border-cyan-400", "bg-white/10");
+    });
+});
+
+// Remove highlight
+["dragleave", "drop"].forEach(eventName => {
+    uploadZone.addEventListener(eventName, () => {
+        uploadZone.classList.remove("border-cyan-400", "bg-white/10");
+    });
+});
+
+// Handle drop
+uploadZone.addEventListener("drop", (e) => {
+    const file = e.dataTransfer.files[0];
+    if (!file) return;
+
+    // Put dropped file into hidden input
+    fileInput.files = e.dataTransfer.files;
+
+    uploadStatus.classList.remove("hidden");
+    uploadStatus.textContent = "✓ " + file.name;
+});
+</script>
+     <div class="mt-8 flex flex-col mm:flex-row items-center gap-4"><button type="submit" id="analyzeBtn"
+    class="gradient-btn text-white font-semibold px-20 py-3.5 rounded-full transition-all text-sm w-full mm:w-auto relative z-10">
+    <span class="flex items-center justify-center gap-2">
+        <i data-lucide="scan" style="width:18px;height:18px;color:#c7e5ec;"></i>
+        Analyze Contract
+    </span>
+</button>
+     </div>
+     
+	   </form>
+        
+  </section><!-- FEATURES -->
+  <section id="features" class="py-24 bg-white/2 relative">
+   <div class="max-w-6xl mx-auto px-6">
+    <div class="text-center mb-16"><span class="inline-block px-4 py-1.5 rounded-full bg-cyan-500/15 border border-cyan-500/40 text-xs font-semibold text-cyan-300 uppercase tracking-wide mb-4">Capabilities</span>
+     <h2 class="font-display text-4xl md:text-5xl tracking-tight text-white font-bold">Powerful Features</h2>
+     <p class="mt-3 text-gray-400 max-w-md mx-auto">Everything you need for comprehensive contract analysis.</p>
+    </div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+     <div class="feature-card rounded-2xl p-7">
+      <div class="w-12 h-12 rounded-2xl bg-cyan-500/15 flex items-center justify-center mb-5">
+       <i data-lucide="users" style="width:24px;height:24px;color:#00d4ff;"></i>
+      </div>
+      <h3 class="font-semibold text-white mb-2">Multi-Agent AI</h3>
+      <p class="text-sm text-gray-400 leading-relaxed">Specialized AI agents work in parallel to analyze legal, financial, and compliance aspects simultaneously.</p>
+     </div>
+     <div class="feature-card rounded-2xl p-7">
+      <div class="w-12 h-12 rounded-2xl bg-purple-500/15 flex items-center justify-center mb-5">
+       <i data-lucide="scissors" style="width:24px;height:24px;color:#7928ca;"></i>
+      </div>
+      <h3 class="font-semibold text-white mb-2">Clause Extraction</h3>
+      <p class="text-sm text-gray-400 leading-relaxed">Automatically identifies and extracts key clauses, terms, and conditions from any contract document.</p>
+     </div>
+     <div class="feature-card rounded-2xl p-7">
+      <div class="w-12 h-12 rounded-2xl bg-green-500/15 flex items-center justify-center mb-5">
+       <i data-lucide="shield" style="width:24px;height:24px;color:#22c55e;"></i>
+      </div>
+      <h3 class="font-semibold text-white mb-2">Compliance Analysis</h3>
+      <p class="text-sm text-gray-400 leading-relaxed">Cross-references contract terms against regulatory requirements to flag compliance gaps.</p>
+     </div>
+     <div class="feature-card rounded-2xl p-7">
+      <div class="w-12 h-12 rounded-2xl bg-amber-500/15 flex items-center justify-center mb-5">
+       <i data-lucide="gauge" style="width:24px;height:24px;color:#f59e0b;"></i>
+      </div>
+      <h3 class="font-semibold text-white mb-2">Risk Score Engine</h3>
+      <p class="text-sm text-gray-400 leading-relaxed">Generates quantified risk scores with detailed breakdowns across multiple risk dimensions.</p>
+     </div>
+     <div class="feature-card rounded-2xl p-7">
+      <div class="w-12 h-12 rounded-2xl bg-rose-500/15 flex items-center justify-center mb-5">
+       <i data-lucide="file-down" style="width:24px;height:24px;color:#e11d48;"></i>
+      </div>
+      <h3 class="font-semibold text-white mb-2">PDF Report Generator</h3>
+      <p class="text-sm text-gray-400 leading-relaxed">Export comprehensive analysis reports as professionally formatted PDF documents.</p>
+     </div>
+     <div class="feature-card rounded-2xl p-7">
+      <div class="w-12 h-12 rounded-2xl bg-teal-500/15 flex items-center justify-center mb-5">
+       <i data-lucide="layout-dashboard" style="width:24px;height:24px;color:#14b8a6;"></i>
+      </div>
+      <h3 class="font-semibold text-white mb-2">Dashboard View</h3>
+      <p class="text-sm text-gray-400 leading-relaxed">Interactive dashboard with visual charts, risk heat maps, and historical analysis tracking.</p>
+     </div>
+    </div>
+   </div>
+  </section><!-- HOW IT WORKS -->
+  <section class="py-24 relative" style="background:linear-gradient(180deg, rgba(10, 14, 39, 0.5) 0%, rgba(10, 14, 39, 1) 100%);">
+   <div class="max-w-5xl mx-auto px-6">
+    <div class="text-center mb-16"><span class="inline-block px-4 py-1.5 rounded-full bg-cyan-500/15 border border-cyan-500/40 text-xs font-semibold text-cyan-300 uppercase tracking-wide mb-4">Process</span>
+     <h2 class="font-display text-4xl md:text-5xl tracking-tight text-white font-bold">How It Works</h2>
+     <p class="mt-3 text-gray-400 max-w-md mx-auto">Three simple steps to comprehensive contract intelligence.</p>
+    </div>
+    <div class="grid md:grid-cols-3 gap-8 relative">
+     <div class="hidden md:block absolute top-16 left-1/6 right-1/6 h-0.5" style="background:linear-gradient(90deg, rgba(0,212,255,0.2), #00d4ff, #7928ca, rgba(121,40,202,0.2));"></div>
+     <div class="relative text-center">
+      <div class="w-14 h-14 mx-auto rounded-2xl gradient-btn flex items-center justify-center shadow-lg shadow-cyan-500/30 relative z-10">
+       <i data-lucide="upload" style="width:24px;height:24px;color:#fff;"></i>
+      </div>
+      <div class="mt-6 step-box rounded-2xl p-6"><span class="text-xs font-bold text-cyan-400 uppercase tracking-widest">Step 1</span>
+       <h3 class="font-semibold text-white mt-2 mb-2">Upload Contract</h3>
+       <p class="text-sm text-gray-400">Upload your PDF/DOCX or paste contract text directly.</p>
+      </div>
+     </div>
+     <div class="relative text-center">
+      <div class="w-14 h-14 mx-auto rounded-2xl gradient-btn flex items-center justify-center shadow-lg shadow-cyan-500/30 relative z-10">
+       <i data-lucide="brain" style="width:24px;height:24px;color:#fff;"></i>
+      </div>
+      <div class="mt-6 step-box rounded-2xl p-6"><span class="text-xs font-bold text-cyan-400 uppercase tracking-widest">Step 2</span>
+       <h3 class="font-semibold text-white mt-2 mb-2">AI Agents Analyze</h3>
+       <p class="text-sm text-gray-400">Multi-agent AI system processes legal, financial &amp; compliance risks.</p>
+      </div>
+     </div>
+     <div class="relative text-center">
+      <div class="w-14 h-14 mx-auto rounded-2xl gradient-btn flex items-center justify-center shadow-lg shadow-cyan-500/30 relative z-10">
+       <i data-lucide="bar-chart-3" style="width:24px;height:24px;color:#fff;"></i>
+      </div>
+      <div class="mt-6 step-box rounded-2xl p-6"><span class="text-xs font-bold text-cyan-400 uppercase tracking-widest">Step 3</span>
+       <h3 class="font-semibold text-white mt-2 mb-2">View Results</h3>
+       <p class="text-sm text-gray-400">Get PDF reports, dashboard insights, and actionable recommendations.</p>
+      </div>
+     </div>
+    </div>
+   </div>
+  </section><!-- WHY CHOOSE -->
+  <section class="py-24 bg-white/2">
+   <div class="max-w-5xl mx-auto px-6">
+    <div class="text-center mb-16"><span class="inline-block px-4 py-1.5 rounded-full bg-cyan-500/15 border border-cyan-500/40 text-xs font-semibold text-cyan-300 uppercase tracking-wide mb-4">Advantages</span>
+     <h2 class="font-display text-4xl md:text-5xl tracking-tight text-white font-bold">Why Choose ClauseAI</h2>
+    </div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+     <div class="text-center p-6 rounded-2xl bg-white/3 border border-cyan-500/10 hover:border-cyan-500/30 transition">
+      <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 flex items-center justify-center mb-4">
+       <i data-lucide="zap" style="width:28px;height:28px;color:#00d4ff;"></i>
+      </div>
+      <h4 class="font-semibold text-white mb-1">Speed</h4>
+      <p class="text-sm text-gray-400">Analyze contracts in seconds, not hours.</p>
+     </div>
+     <div class="text-center p-6 rounded-2xl bg-white/3 border border-cyan-500/10 hover:border-cyan-500/30 transition">
+      <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-purple-500/20 to-purple-600/10 flex items-center justify-center mb-4">
+       <i data-lucide="target" style="width:28px;height:28px;color:#7928ca;"></i>
+      </div>
+      <h4 class="font-semibold text-white mb-1">Accuracy</h4>
+      <p class="text-sm text-gray-400">Multi-agent validation ensures precision.</p>
+     </div>
+     <div class="text-center p-6 rounded-2xl bg-white/3 border border-cyan-500/10 hover:border-cyan-500/30 transition">
+      <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-green-500/20 to-green-600/10 flex items-center justify-center mb-4">
+       <i data-lucide="sparkles" style="width:28px;height:28px;color:#22c55e;"></i>
+      </div>
+      <h4 class="font-semibold text-white mb-1">AI Intelligence</h4>
+      <p class="text-sm text-gray-400">Powered by cutting-edge LLM technology.</p>
+     </div>
+     <div class="text-center p-6 rounded-2xl bg-white/3 border border-cyan-500/10 hover:border-cyan-500/30 transition">
+      <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-amber-500/20 to-amber-600/10 flex items-center justify-center mb-4">
+       <i data-lucide="file-check" style="width:28px;height:28px;color:#f59e0b;"></i>
+      </div>
+      <h4 class="font-semibold text-white mb-1">Pro Reports</h4>
+      <p class="text-sm text-gray-400">Publication-ready PDF analysis reports.</p>
+     </div>
+    </div>
+   </div>
+  </section><!-- ABOUT -->
+  <section id="about" class="py-24 relative" style="background:linear-gradient(180deg, rgba(10, 14, 39, 0.5) 0%, rgba(10, 14, 39, 1) 100%);">
+   <div class="max-w-4xl mx-auto px-6">
+    <div class="text-center mb-12"><span class="inline-block px-4 py-1.5 rounded-full bg-cyan-500/15 border border-cyan-500/40 text-xs font-semibold text-cyan-300 uppercase tracking-wide mb-4">About</span>
+     <h2 class="font-display text-4xl md:text-5xl tracking-tight text-white font-bold">About ClauseAI</h2>
+    </div>
+    <div class="card-glass rounded-3xl shadow-2xl shadow-cyan-500/10 p-8 md:p-12">
+     <p id="aboutText" class="text-gray-400 leading-relaxed text-center max-w-2xl mx-auto mb-10">ClauseAI is an advanced AI system designed to automate contract risk analysis using multi-agent architecture, LangGraph workflows, and LLM intelligence. Built to deliver accurate, structured, and fast insights for legal, financial, and compliance domains.</p>
+     <div class="flex justify-center">
+      <div class="creator-card rounded-2xl p-6 flex items-center gap-5">
+       <div class="w-16 h-16 rounded-2xl gradient-btn flex items-center justify-center text-white text-xl font-bold shadow-lg shadow-cyan-500/30 relative z-10">
+        VAK
+       </div>
+       <div>
+        <div class="text-xs text-cyan-400 font-semibold uppercase tracking-wide mb-1">
+         Created by
+        </div>
+        <div id="creatorName" class="text-lg font-bold text-white">
+         Vaishnavi A. Kanade
+        </div>
+        <div class="text-sm text-gray-400">
+         IT Engineer &amp; Developer
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+  </section><!-- FOOTER -->
+  <footer id="contact" class="footer-gradient py-16">
+   <div class="max-w-6xl mx-auto px-6">
+    <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+     <div class="flex items-center gap-2">
+      <div class="w-7 h-7 rounded-lg gradient-btn flex items-center justify-center relative z-10">
+       <i data-lucide="shield-check" style="width:14px;height:14px;color:#fff;"></i>
+      </div><span class="font-bold tracking-tight text-white">Clause<span style="color:#00d4ff;">AI</span></span>
+     </div>
+     <div class="flex items-center gap-6 text-sm text-gray-400"><a href="#home" class="hover:text-gray-200 transition">Home</a> <span class="text-gray-600">·</span> <a href="#analyze" class="hover:text-gray-200 transition">Analyze</a> <span class="text-gray-600">·</span> <a href="#about" class="hover:text-gray-200 transition">About</a>
+     </div>
+     <div class="flex items-center gap-3"><a href="#" class="w-9 h-9 rounded-full bg-white/5 border border-cyan-500/20 flex items-center justify-center hover:border-cyan-500/60 hover:bg-cyan-500/20 transition"> <i data-lucide="github" style="width:16px;height:16px;color:#00d4ff;"></i> </a> <a href="#" class="w-9 h-9 rounded-full bg-white/5 border border-cyan-500/20 flex items-center justify-center hover:border-cyan-500/60 hover:bg-cyan-500/20 transition"> <i data-lucide="linkedin" style="width:16px;height:16px;color:#00d4ff;"></i> </a> <a href="#" class="w-9 h-9 rounded-full bg-white/5 border border-cyan-500/20 flex items-center justify-center hover:border-cyan-500/60 hover:bg-cyan-500/20 transition"> <i data-lucide="twitter" style="width:16px;height:16px;color:#00d4ff;"></i> </a>
+     </div>
+    </div>
+    <!-- ========================= -->
+<!-- ========================= -->
+<!-- 🤖 AI CHATBOT UI -->
+<!-- ========================= -->
+
+<!-- FLOAT BUTTON -->
+<div id="chatToggle" onclick="toggleChat()" style="
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 70px;
+    height: 70px;
+    font-size: 26px;
+    background: linear-gradient(135deg, #00D9FF, #7B5CFF);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(0,217,255,0.5);
+    z-index: 999;
+">
+💬
+</div>
+
+<!-- CHAT WINDOW -->
+<div id="chatBox" style="
+    position: fixed;
+    bottom: 110px;
+    right: 30px;
+    width: 380px;
+    height: 500px;
+    background: #0f172a;
+    border-radius: 20px;
+    display: none;
+    flex-direction: column;
+    box-shadow: 0 12px 40px rgba(0,217,255,0.3);
+    overflow: hidden;
+    z-index: 999;
+">
+
+<!-- HEADER -->
+<div style="
+    padding: 12px;
+    background: linear-gradient(135deg,#00D9FF,#7B5CFF);
+    color: white;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+">
+    <span>🤖 ClauseAI Assistant</span>
+    <button onclick="toggleChat()" style="
+        background: transparent;
+        border: none;
+        color: white;
+        font-size: 18px;
+        cursor: pointer;
+    ">✖</button>
+</div>
+
+<!-- MESSAGES -->
+<div id="chatMessages" style="
+    flex: 1;
+    padding: 12px;
+    overflow-y: auto;
+    font-size: 14px;
+    color: white;
+">
+    <div>👋 Ask me about ClauseAI!</div>
+</div>
+
+<!-- 💡 SUGGESTION BUTTON -->
+<div style="padding:8px; border-top:1px solid #1e293b;">
+    <button onclick="toggleFAQ()" style="
+        width:100%;
+        padding:8px;
+        background:#1e293b;
+        color:#00D9FF;
+        border:none;
+        border-radius:8px;
+        cursor:pointer;
+    ">
+        💡 Suggestions
+    </button>
+</div>
+
+<!-- FAQ PANEL -->
+<div id="faqPanel" style="
+    display:none;
+    padding:10px;
+    background:#020617;
+    border-top:1px solid #1e293b;
+">
+
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:13px;color:#94a3b8;">Try asking:</span>
+        <button onclick="closeFAQ()" style="
+            background:none;
+            border:none;
+            color:white;
+            cursor:pointer;
+        ">✖</button>
+    </div>
+
+    <div id="faqList"></div>
+</div>
+
+<!-- INPUT -->
+<div style="display:flex; border-top:1px solid #1e293b;">
+    <input id="chatInput" type="text" placeholder="Ask something..."
+        style="
+            flex:1;
+            padding:10px;
+            border:none;
+            outline:none;
+            background:#020617;
+            color:white;
+        "
+    >
+    <button onclick="sendLanding()" style="
+        padding:10px 15px;
+        background:#00D9FF;
+        border:none;
+        color:black;
+        cursor:pointer;
+    ">➤</button>
+</div>
+
+</div>
+
+<!-- STYLE -->
+<style>
+.faq-btn {
+    display:block;
+    width:100%;
+    margin:6px 0;
+    padding:8px;
+    border:none;
+    border-radius:8px;
+    background:#1e293b;
+    color:#00D9FF;
+    cursor:pointer;
+    text-align:left;
+}
+.faq-btn:hover {
+    background:#334155;
+}
+</style>
+
+<!-- SCRIPT -->
+<script>
+
+// =====================
+// OPEN / CLOSE CHAT
+// =====================
+function toggleChat() {
+    let chat = document.getElementById("chatBox");
+    chat.style.display = (chat.style.display === "flex") ? "none" : "flex";
+}
+
+// =====================
+// FAQ QUESTIONS (20)
+// =====================
+const allFAQs = [
+  // General Overview
+  "What is ClauseAI?",
+  "How does ClauseAI work?",
+  "What problem does ClauseAI solve?",
+  "What are the main features of ClauseAI?",
+  "Who developed ClauseAI?",
+  "Where can ClauseAI be used?",
+  "Is ClauseAI free to use?",
+  "What are the advantages of using ClauseAI?",
+  "Why should I choose ClauseAI?",
+
+  // Technology & AI
+  "Does ClauseAI use AI?",
+  "What technology stack does ClauseAI use?",
+  "How accurate is ClauseAI?",
+  "Can ClauseAI detect risks in contracts?",
+  "Can ClauseAI summarize contracts?",
+  "Is ClauseAI secure?",
+
+  // Users & Applications
+  "Who should use ClauseAI?",
+  "Is ClauseAI scalable for large organizations?",
+  "What is the performance speed of ClauseAI?",
+  "Can ClauseAI be used in different industries?",
+  "What are some use cases for ClauseAI?",
+
+  // Future Scope
+  "What future improvements are planned for ClauseAI?",
+  "Will ClauseAI support API integration in the future?",
+  "Can ClauseAI learn from human feedback?"
+];
+
+let faqIndex = 0;
+
+// =====================
+// FAQ CONTROL
+// =====================
+function toggleFAQ(){
+    let panel = document.getElementById("faqPanel");
+    panel.style.display = (panel.style.display === "none") ? "block" : "none";
+    renderFAQ();
+}
+
+function closeFAQ(){
+    document.getElementById("faqPanel").style.display = "none";
+}
+
+// =====================
+// RENDER FAQ (5 ROTATION)
+// =====================
+function renderFAQ(){
+    let box = document.getElementById("faqList");
+    box.innerHTML = "";
+
+    for(let i=0;i<5;i++){
+        let q = allFAQs[(faqIndex + i) % allFAQs.length];
+
+        box.innerHTML += `
+        <button class="faq-btn" onclick="selectFAQ('${q}')">${q}</button>`;
+    }
+
+    faqIndex = (faqIndex + 5) % allFAQs.length;
+}
+
+// =====================
+// CLICK FAQ
+// =====================
+function selectFAQ(q){
+    closeFAQ();
+    document.getElementById("chatInput").value = q;
+    sendLanding();
+}
+
+// =====================
+// ENTER KEY SUPPORT
+// =====================
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("chatInput").addEventListener("keypress", function(e){
+        if(e.key === "Enter"){
+            sendLanding();
+        }
+    });
+});
+
+// =====================
+// ANSWERS
+// =====================
+const answers = {
+  // General Overview
+  "what is clauseai": "ClauseAI is an AI-powered tool that automatically analyzes legal contracts, highlights risks, and provides actionable insights.",
+  "how does clauseai work": "Upload a contract → ClauseAI analyzes it using AI → Get a detailed risk report, summary, and recommendations.",
+  "what problem does clauseai solve": "It solves the complexity of manual contract review, reducing errors and saving time.",
+  "what are the main features of clauseai": "Features include multi-agent analysis, risk detection, contract summarization, tone-based reports, and AI-powered chatbot support.",
+  "who developed clauseai": "ClauseAI was developed by Vaishnavi Kanade.",
+  "where can clauseai be used": "It can be used in legal firms, startups, freelance consulting, and large enterprises for contract management.",
+  "is clauseai free to use": "Currently, ClauseAI is available for demo or academic use.",
+  "what are the advantages of using clauseai": "It saves time, reduces legal and financial risks, improves decision-making, and ensures compliance.",
+  "why should i choose clauseai": "ClauseAI combines AI accuracy with user-friendly reporting to streamline contract analysis effectively.",
+
+  // Technology & AI
+  "does clauseai use ai": "Yes, ClauseAI uses AI models to analyze contracts, detect risks, and summarize content.",
+  "what technology stack does clauseai use": "Built with Python, Flask, LangGraph, Pinecone vector database, and Groq API for AI integration.",
+  "how accurate is clauseai": "ClauseAI provides highly accurate insights by analyzing contracts across legal, financial, and compliance domains.",
+  "can clauseai detect risks in contracts": "Yes, it highlights risky clauses, financial exposures, and compliance concerns.",
+  "can clauseai summarize contracts": "Yes, it generates concise summaries highlighting key points and risks.",
+  "is clauseai secure": "ClauseAI ensures secure processing; uploaded contracts are handled confidentially and not shared externally.",
+
+  // Users & Applications
+  "who should use clauseai": "Ideal for legal professionals, contract managers, business owners, and freelancers dealing with contracts.",
+  "is clauseai scalable for large organizations": "Yes, ClauseAI is designed to handle multiple contracts and large-scale document analysis efficiently.",
+  "what is the performance speed of clauseai": "ClauseAI analyzes contracts within seconds to a few minutes depending on document size.",
+  "can clauseai be used in different industries": "Yes, including legal services, finance, IT, real estate, and startups.",
+  "what are some use cases for clauseai": "Use cases include contract risk assessment, compliance checks, payment clause review, NDA analysis, and quick contract summaries.",
+
+  // Future Scope
+  "what future improvements are planned for clauseai": "Planned improvements include real-time collaboration, advanced automation, and better AI models.",
+  "will clauseai support api integration in the future": "Yes, API integration is planned to allow seamless use in enterprise workflows.",
+  "can clauseai learn from human feedback": "Yes, future versions will incorporate a human feedback loop to improve AI accuracy over time."
+};
+
+// =====================
+// MAIN FUNCTION
+// =====================
+function sendLanding(){
+
+let input = document.getElementById("chatInput");
+let msg = input.value.trim();
+if(!msg) return;
+
+let chat = document.getElementById("chatMessages");
+
+// USER MESSAGE
+chat.innerHTML += `
+<div style="text-align:right; margin:6px;">
+<span style="background:#7B5CFF;padding:8px 12px;border-radius:12px;">
+${msg}
+</span>
+</div>`;
+
+input.value = "";
+
+let lower = msg.toLowerCase();
+
+// GREETING
+if(lower.includes("hi") || lower.includes("hello") || lower.includes("hey") || lower.includes("good")){
+chat.innerHTML += `<div style="margin:6px;">👋 Hello! Ask me about ClauseAI.</div>`;
+chat.scrollTop = chat.scrollHeight;
+return;
+}
+
+// BYE
+if(lower.includes("bye")){
+chat.innerHTML += `<div style="margin:6px;">👋 Goodbye!</div>`;
+chat.scrollTop = chat.scrollHeight;
+return;
+}
+
+// ANSWER
+let found = false;
+for(let key in answers){
+if(lower.includes(key)){
+chat.innerHTML += `
+<div style="margin:6px;">
+<span style="background:#00D9FF;color:black;padding:8px 12px;border-radius:12px;">
+${answers[key]}
+</span>
+</div>`;
+found = true;
+break;
+}
+}
+
+// DEFAULT
+if(!found){
+chat.innerHTML += `
+<div style="margin:6px;">
+<span style="background:#00D9FF;color:black;padding:8px 12px;border-radius:12px;">
+I answer only about ClauseAI 😊
+</span>
+</div>`;
+}
+
+chat.scrollTop = chat.scrollHeight;
+}
+
+</script>
+  <script>
+    const defaultConfig = {
+      hero_title: 'AI-Powered Contract Risk Analysis — Simple. Fast. Accurate.',
+      hero_subtitle: 'Upload any contract and get instant legal, financial, and compliance risk insights powered by multi-agent AI.',
+      about_text: 'ClauseAI is an advanced AI system designed to automate contract risk analysis using multi-agent architecture, LangGraph workflows, and LLM intelligence. Built to deliver accurate, structured, and fast insights for legal, financial, and compliance domains.',
+      creator_name: 'Vaishnavi A. Kanade'
+    };
+
+    function applyConfig(config) {
+      const c = { ...defaultConfig, ...config };
+      document.getElementById('heroTitle').innerHTML = c.hero_title.replace(/(Simple\. Fast\. Accurate\.|—.*$)/g, '<em class="not-italic" style="color:#00d4ff;">$1</em>');
+      document.getElementById('heroSubtitle').textContent = c.hero_subtitle;
+      document.getElementById('aboutText').textContent = c.about_text;
+      document.getElementById('creatorName').textContent = c.creator_name;
+    }
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange: async (config) => applyConfig(config),
+        mapToCapabilities: (config) => ({
+          recolorables: [],
+          borderables: [],
+          fontEditable: undefined,
+          fontSizeable: undefined
+        }),
+        mapToEditPanelValues: (config) => {
+          const c = { ...defaultConfig, ...config };
+          return new Map([
+            ['hero_title', c.hero_title],
+            ['hero_subtitle', c.hero_subtitle],
+            ['about_text', c.about_text],
+            ['creator_name', c.creator_name]
+          ]);
+        }
+      });
+    }
+
+    document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+      document.getElementById('mobileMenu').classList.toggle('hidden');
+    });
+
+    document.getElementById('uploadZone').addEventListener('click', () => {
+      document.getElementById('uploadStatus').classList.remove('hidden');
+    });
+
+    document.getElementById('analyzeBtn').addEventListener('click', () => {
+    document.getElementById('analysisResult').classList.remove('hidden');
+});
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('section-fade'); observer.unobserve(e.target); }});
+    }, { threshold: 0.1 });
+    document.querySelectorAll('section').forEach(s => observer.observe(s));
+
+    lucide.createIcons();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9e2f41f9c789ff68',t:'MTc3NDYyMzU1My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

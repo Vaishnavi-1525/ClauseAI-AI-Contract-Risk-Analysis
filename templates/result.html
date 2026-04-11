@@ -1,0 +1,913 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ClauseAI - Contract Analysis Report</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Poppins', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    html, body { height: 100%; margin: 0; box-sizing: border-box; }
+    * { box-sizing: border-box; }
+    
+    .premium-gradient {
+      background: linear-gradient(135deg, #00D9FF 0%, #7B5CFF 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .premium-card {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+      border: 1px solid rgba(0, 217, 255, 0.2);
+      box-shadow: 0 4px 24px rgba(0, 217, 255, 0.05), inset 0 1px 1px rgba(255, 255, 255, 0.05);
+      border-radius: 24px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      backdrop-filter: blur(10px);
+    }
+    
+    .premium-card:hover {
+      border-color: rgba(0, 217, 255, 0.4);
+      box-shadow: 0 12px 40px rgba(0, 217, 255, 0.15), inset 0 1px 1px rgba(255, 255, 255, 0.08);
+      transform: translateY(-2px);
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
+    }
+    
+    .premium-button {
+      background: linear-gradient(90deg, #00D9FF 0%, #7B5CFF 100%);
+      color: white;
+      font-weight: 600;
+      border: none;
+      border-radius: 999px;
+      padding: 14px 32px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0, 217, 255, 0.3);
+    }
+    
+    .premium-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 36px rgba(0, 217, 255, 0.5);
+    }
+    
+    .premium-button::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, #7B5CFF 0%, #00D9FF 100%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    
+    .premium-button:hover::before {
+      opacity: 1;
+    }
+    
+    .premium-button-text {
+      position: relative;
+      z-index: 1;
+    }
+    
+    .report-header {
+      text-align: center;
+      padding: 48px 24px;
+    }
+    
+    .report-title {
+      font-size: 48px;
+      font-weight: 800;
+      color: #E2E8F0;
+      margin: 0;
+      letter-spacing: -0.5px;
+    }
+    
+    .report-subtitle {
+      font-size: 18px;
+      color: #94A3B8;
+      margin: 12px 0 0 0;
+      font-weight: 400;
+    }
+    
+    .risk-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #00D9FF 0%, #7B5CFF 100%);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 600;
+      margin-top: 16px;
+      box-shadow: 0 4px 12px rgba(0, 217, 255, 0.25);
+    }
+    
+    .content-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+    
+    @media (min-width: 768px) {
+      .content-grid {
+        grid-template-columns: repeat(1, 1fr);
+      }
+    }
+    
+    .summary-card {
+      grid-column: 1 / -1;
+      background: linear-gradient(135deg, rgba(123, 92, 255, 0.1) 0%, rgba(0, 217, 255, 0.05) 100%) !important;
+    }
+    
+    .summary-card .premium-card {
+      background: inherit;
+      border: 1px solid rgba(0, 217, 255, 0.25);
+    }
+    
+    .card-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #E2E8F0;
+      margin: 0 0 16px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .card-title-icon {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, #00D9FF 0%, #7B5CFF 100%);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      flex-shrink: 0;
+    }
+    
+    .card-content {
+      color: #CBD5E1;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(0, 217, 255, 0.1);
+    }
+    
+    .info-row:last-child {
+      border-bottom: none;
+    }
+    
+    .info-label {
+      font-weight: 500;
+      color: #94A3B8;
+      font-size: 14px;
+    }
+    
+    .info-value {
+      font-weight: 600;
+      background: linear-gradient(135deg, #00D9FF 0%, #7B5CFF 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .bullet-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .bullet-list li {
+      padding: 10px 0;
+      padding-left: 28px;
+      position: relative;
+      color: #CBD5E1;
+      font-size: 15px;
+    }
+    
+    .bullet-list li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 14px;
+      width: 6px;
+      height: 6px;
+      background: linear-gradient(135deg, #00D9FF, #7B5CFF);
+      border-radius: 50%;
+    }
+    
+    .cta-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    margin-top: 20px;
+}
+
+.premium-button {
+    white-space: nowrap;
+}
+    
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: 100%;
+      max-width: 500px;
+    }
+    
+    .secondary-button {
+      background: rgba(30, 41, 59, 0.6);
+      color: #E2E8F0;
+      font-weight: 600;
+      border: 2px solid rgba(0, 217, 255, 0.25);
+      border-radius: 12px;
+      padding: 12px 24px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 16px;
+      backdrop-filter: blur(10px);
+    }
+    
+    .secondary-button:hover {
+      border-color: rgba(0, 217, 255, 0.5);
+      background: rgba(0, 217, 255, 0.1);
+      color: #00D9FF;
+    }
+    
+    .footer {
+      text-align: center;
+      padding: 32px 24px;
+      color: #64748B;
+      font-size: 14px;
+      font-weight: 400;
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.6s ease-out;
+    }
+    
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full bg-slate-950 overflow-auto">
+  <!-- HEADER -->
+  <div class="report-header fade-in">
+   <h1 class="report-title">Contract Analysis Report</h1>
+   <p id="fileNameDisplay" class="report-subtitle"></p><span id="riskBadge" class="risk-badge">Risk Score: {{ score }}/100</span>
+  </div>
+  <div class="cta-section">
+  <button class="premium-button" onclick="openTonePopup()">
+  <span class="premium-button-text">Download Report</span>
+</button>
+  <button class="premium-button" onclick="toggleContract()">
+    <span class="premium-button-text">Show / Hide Contract</span>
+  </button>
+
+<!-- POPUP -->
+<div id="tonePopup" 
+     class="hidden fixed inset-0 z-50 backdrop-blur bg-black bg-opacity-40 
+     flex justify-center items-center animate-fade">
+
+    <div class="bg-[#0c163d] border border-cyan-400/40 rounded-2xl p-6 w-80 text-center"
+         id="popupBox">
+
+        <h3 id="popupTitle" class="text-xl text-white font-semibold mb-4">
+            Select Report Tone
+        </h3>
+
+        <!-- TONE BUTTONS -->
+        <div id="toneButtons" class="flex flex-col gap-3">
+            <button class="premium-button" onclick="chooseTone('Neutral')">Neutral</button>
+            <button class="premium-button" onclick="chooseTone('Professional')">Professional</button>
+            <button class="premium-button" onclick="chooseTone('Friendly')">Friendly</button>
+            <button class="premium-button" onclick="chooseTone('Strict')">Strict</button>
+            <button class="premium-button" onclick="chooseTone('Soft')">Soft</button>
+        </div>
+
+        <!-- FORMAT BUTTONS (hidden first) -->
+        <div id="formatButtons" class="flex justify-center gap-4 hidden mt-4">
+            <button class="premium-button px-4" onclick="downloadFormat('pdf')">PDF</button>
+            <button class="premium-button px-4" onclick="downloadFormat('docx')">DOCX</button>
+        </div>
+
+        <button onclick="closeTonePopup()" 
+                class="mt-5 text-red-400 hover:text-red-300 duration-200">
+            Close
+        </button>
+    </div>
+</div>
+
+<script>
+let selectedTone = null;
+
+function openTonePopup() {
+    document.getElementById("tonePopup").classList.remove("hidden");
+}
+
+function closeTonePopup() {
+    document.getElementById("tonePopup").classList.add("hidden");
+}
+
+// ███ When user selects a tone → hide tone buttons and show format buttons
+function chooseTone(tone) {
+    selectedTone = tone;
+    localStorage.setItem("reportTone", tone);
+
+    document.getElementById("toneButtons").classList.add("hidden");
+    document.getElementById("popupTitle").innerText = "Select File Format";
+    document.getElementById("formatButtons").classList.remove("hidden");
+}
+
+function downloadFormat(format) {
+    window.location.href = `/download?tone=${selectedTone}&format=${format}`;
+    closeTonePopup();
+}
+</script>
+
+
+<style>
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-fade {
+  animation: fadeIn 0.25s ease-out;
+}
+</style>
+</div>
+<div style="max-width:1200px; margin:0 auto; padding:0 24px;">
+<div id="contractBox" class="premium-card p-6" style="
+    display:none;
+    margin-bottom:20px;
+    max-height:400px;
+    overflow-y:auto;
+    white-space: pre-wrap;
+    background:#f9f9f9;
+    color:black;
+">
+    {{ highlighted_contract|safe }}
+</div>
+
+
+  <script>
+document.addEventListener("DOMContentLoaded", () => {
+    const fileName = localStorage.getItem("uploadedFileName");
+    if (fileName) {
+        document.getElementById("fileNameDisplay").textContent = fileName;
+    }
+});
+</script>
+
+
+<script>
+function toggleContract() {
+    var box = document.getElementById("contractBox");
+    box.style.display = box.style.display === "none" ? "block" : "none";
+}
+</script>
+
+<!-- MAIN CONTENT -->
+  <div style="max-width: 1200px; margin: 0 auto; padding: 24px;">
+   <div class="content-grid">
+    <!-- PLANNING RESULT CARD -->
+    <div class="premium-card p-8 fade-in col-span-2"" style="animation-delay: 0.1s;">
+     <h3 class="card-title">
+      <div class="card-title-icon">
+       <i data-lucide="target" style="width: 16px; height: 16px;"></i>
+      </div> Planning Result</h3>
+     <div class="card-content space-y-3">
+      <div class="info-row">
+       <span class="info-label">Domains</span> <span class="info-value">Legal, Finance, Compliance</span>
+      </div>
+      <div class="info-row">
+       <span class="info-label">Confidence</span> <span class="info-value"></b> {{ confidence }}%</span>
+      </div>
+      <div class="info-row">
+       <span class="info-label">Status</span> <span style="font-weight: 600; color: #22c55e;">✓ Complete</span>
+      </div>
+     </div>
+    </div>
+    <div class="chart-container" style="position: relative; height:300px; width:300px; margin: auto;">
+    <canvas id="riskChart"></canvas>
+</div>
+    <!-- Planning Result CARD-->
+    <div class="premium-card p-8 fade-in summary-card" style="animation-delay: 0.2s;">
+     <h3 class="card-title">
+      <div class="card-title-icon">
+       <i data-lucide="briefcase" style="width: 16px; height: 16px;"></i>
+      </div> Planning Result</h3>
+        <div class="card-content">
+           <span class="info-value"></span>
+          {{ results.get("Planning Result", "Not Available") }}
+          </span>
+     </div>
+     </div><!-- LEGAL ANALYSIS CARD-->
+    <div class="premium-card p-8 fade-in summary-card" style="animation-delay: 0.2s;">
+     <h3 class="card-title">
+      <div class="card-title-icon">
+       <i data-lucide="briefcase" style="width: 16px; height: 16px;"></i>
+      </div> Legal Analysis</h3>
+        <div class="card-content">
+          {{ results.get("Legal Analysis", "Not Available") }}
+     </div>
+     </div>
+  <!-- FINANCE ANALYSIS CARD -->
+    <div class="premium-card p-8 fade-in summary-card" style="animation-delay: 0.2s;">
+     <h3 class="card-title">
+      <div class="card-title-icon">
+       <i data-lucide="briefcase" style="width: 16px; height: 16px;"></i>
+      </div>Finance Analysis</h3>
+        <div class="card-content">
+      {{ results.get("Finance Analysis", "Not Available") }}
+     </div>
+     </div>
+    <!-- COMPLIANCE ANALYSIS CARD -->
+    <div class="premium-card p-8 fade-in summary-card" style="animation-delay: 0.2s;">
+     <h3 class="card-title">
+      <div class="card-title-icon">
+       <i data-lucide="briefcase" style="width: 16px; height: 16px;"></i>
+      </div>Compliance Analysis</h3>
+        <div class="card-content">
+      {{ results.get("Compliance Analysis", "Not Available") }}
+     </div>
+     </div>
+    <!-- EXECUTIVE SUMMARY CARD (FEATURED) -->
+  <div class="premium-card p-8 fade-in summary-card" style="animation-delay: 0.2s;">
+     <h3 class="card-title">
+      <div class="card-title-icon">
+       <i data-lucide="briefcase" style="width: 16px; height: 16px;"></i>
+      </div> Executive Summary</h3>
+        <div class="card-content">
+      {{ results.get("Summary", "Not Available") }}
+     </div>
+     </div>
+     </div>
+   </div>
+   <!-- ========================= -->
+<!-- 🔵 ANALYZE ANOTHER CONTRACT BUTTON -->
+<!-- ========================= -->
+<div class="w-full flex justify-center mt-10 mb-6">
+    <a href="/index" 
+       class="premium-button px-6 py-3 text-lg font-semibold">
+        Analyze Another Contract
+    </a>
+</div>
+<!-- ========================= -->
+<!-- 🤖 CONTRACT CHATBOT -->
+<!-- ========================= -->
+
+<!-- FLOAT BUTTON -->
+<div id="chatToggle" onclick="openChat()" style="
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 70px;
+    height: 70px;
+    font-size: 28px;
+    background: linear-gradient(135deg, #00D9FF, #7B5CFF);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(0,217,255,0.5);
+    z-index: 999;
+">
+💬
+</div>
+
+<!-- CHAT BOX -->
+<div id="chatBox" style="
+    position: fixed;
+    bottom: 110px;
+    right: 30px;
+    width: 420px;
+    height: 550px;
+    background: #0f172a;
+    border-radius: 20px;
+    display: none;
+    flex-direction: column;
+    box-shadow: 0 12px 40px rgba(0,217,255,0.3);
+    overflow: hidden;
+    z-index: 999;
+">
+
+<!-- HEADER -->
+<div style="
+    padding: 12px;
+    background: linear-gradient(135deg,#00D9FF,#7B5CFF);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+">
+<span>🤖 Contract Assistant</span>
+<button onclick="closeChat()" style="background:none;border:none;color:white;font-size:18px;">✖</button>
+</div>
+
+<!-- MESSAGES -->
+<div id="chatMessages" style="
+    flex:1;
+    padding:12px;
+    overflow-y:auto;
+    color:white;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+">
+    <div>👋 Ask about your contract</div>
+</div>
+
+<!-- ========================= -->
+<!-- 🔘 FAQ TOGGLE BUTTON (NEW) -->
+<!-- ========================= -->
+<div style="padding:6px 10px; background:#020617; border-top:1px solid #1e293b;">
+    <button onclick="toggleFAQ()" style="
+        width:100%;
+        padding:8px;
+        border:none;
+        border-radius:8px;
+        background:#1e293b;
+        color:#00D9FF;
+        cursor:pointer;
+        font-size:13px;
+    ">
+        💡 Suggested Questions
+    </button>
+</div>
+
+<!-- ========================= -->
+<!-- 📦 FAQ BOX (TOGGLEABLE) -->
+<!-- ========================= -->
+<div id="faqBox" style="
+    display:none;
+    padding:10px;
+    border-top:1px solid #1e293b;
+    background:#020617;
+">
+
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div style="font-size:12px;color:#94a3b8;">
+            Ask quickly 👇
+        </div>
+        <button onclick="toggleFAQ()" style="
+            background:none;
+            border:none;
+            color:#ff4d4d;
+            font-size:16px;
+            cursor:pointer;
+        ">✖</button>
+    </div>
+
+    <div id="faqButtons" style="margin-top:8px;"></div>
+</div>
+
+<!-- INPUT -->
+<div style="display:flex; border-top:1px solid #1e293b;">
+<input id="chatInput" placeholder="Ask about contract..." style="
+    flex:1;
+    padding:12px;
+    border:none;
+    outline:none;
+    background:#020617;
+    color:white;
+">
+
+<button onclick="sendMessage()" style="
+    padding:10px 16px;
+    background:#00D9FF;
+    border:none;
+    cursor:pointer;
+">
+➤
+</button>
+</div>
+
+</div>
+
+<!-- ========================= -->
+<!-- 🤖 SCRIPT -->
+<!-- ========================= -->
+
+<script>
+
+// =====================
+// OPEN / CLOSE CHAT
+// =====================
+function openChat(){
+    document.getElementById("chatBox").style.display="flex";
+}
+function closeChat(){
+    document.getElementById("chatBox").style.display="none";
+}
+
+// =====================
+// FAQ TOGGLE
+// =====================
+function toggleFAQ(){
+    let box = document.getElementById("faqBox");
+    box.style.display = (box.style.display === "none" || box.style.display === "") 
+        ? "block" 
+        : "none";
+}
+
+// =====================
+// ENTER KEY
+// =====================
+document.addEventListener("DOMContentLoaded",()=>{
+document.getElementById("chatInput").addEventListener("keypress",function(e){
+    if(e.key==="Enter") sendMessage();
+});
+renderFAQ();
+});
+
+// =====================
+// FAQ DATA (18–20 QUESTIONS EXPANDABLE)
+// =====================
+const faqList = [
+  "Can you summarize the contract?",
+  "What are the payment terms in this contract?",
+  "What legal risks are involved?",
+  "Who are the parties involved in this contract?",
+  "What is the duration of the contract?",
+  "Is it safe to sign this contract?",
+  "Are there any penalties or liabilities?",
+  "What is the termination clause?",
+  "What does the confidentiality clause specify?",
+  "What is the refund policy?",
+  "What is the project timeline?",
+  "Who owns the intellectual property?",
+  "How is dispute resolution handled?",
+  "Which governing law applies?",
+  "Is there a late payment penalty?",
+  "What does the force majeure clause cover?",
+  "What are the rules for contract amendments?",
+  "What are the obligations of each party?"
+];
+
+let faqIndex = 0;
+
+// =====================
+// RENDER FAQ (5–6 ROTATING)
+// =====================
+function renderFAQ(){
+let box = document.getElementById("faqButtons");
+box.innerHTML = "";
+
+let showCount = 6;
+
+for(let i=0;i<showCount;i++){
+    let q = faqList[(faqIndex + i) % faqList.length];
+
+    box.innerHTML += `
+    <button onclick="quickQ('${q}')" style="
+        display:block;
+        width:100%;
+        margin:4px 0;
+        padding:8px;
+        border:none;
+        border-radius:8px;
+        background:#1e293b;
+        color:#00D9FF;
+        cursor:pointer;
+        text-align:left;
+        font-size:13px;
+    ">${q}</button>`;
+}
+
+faqIndex = (faqIndex + showCount) % faqList.length;
+}
+
+// =====================
+// CLICK FAQ → SEND + CLOSE FAQ
+// =====================
+function quickQ(q){
+toggleFAQ();      // auto close
+sendMessage(q);   // send question
+}
+
+// =====================
+// MAIN CHAT FUNCTION (UNCHANGED API)
+// =====================
+async function sendMessage(customMsg=null){
+
+let input=document.getElementById("chatInput");
+let msg = customMsg || input.value.trim();
+if(!msg) return;
+
+let chat=document.getElementById("chatMessages");
+
+// USER MESSAGE
+chat.innerHTML += `
+<div style="text-align:right;">
+<span style="
+background:#7B5CFF;
+padding:8px 12px;
+border-radius:12px;
+display:inline-block;
+max-width:75%;
+">
+${msg}
+</span>
+</div>`;
+
+input.value="";
+
+let lower = msg.toLowerCase();
+
+// GREETINGS
+if(lower.includes("hi") || lower.includes("hello") || lower.includes("hey")){
+chat.innerHTML += `
+<div>
+<span style="background:#00D9FF;color:black;padding:8px 12px;border-radius:12px;">
+👋 Hello! Ask anything about your contract.
+</span>
+</div>`;
+renderFAQ();
+chat.scrollTop=chat.scrollHeight;
+return;
+}
+
+if(lower.includes("bye")){
+chat.innerHTML += `
+<div>
+<span style="background:#00D9FF;color:black;padding:8px 12px;border-radius:12px;">
+👋 Goodbye!
+</span>
+</div>`;
+renderFAQ();
+chat.scrollTop=chat.scrollHeight;
+return;
+}
+
+// LOADING
+chat.innerHTML += `<div id="load">Thinking...</div>`;
+chat.scrollTop=chat.scrollHeight;
+
+// API CALL (UNCHANGED)
+try{
+const res=await fetch("/chat",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({message:msg})
+});
+
+const data=await res.json();
+document.getElementById("load").remove();
+
+// BOT RESPONSE
+chat.innerHTML += `
+<div>
+<span style="
+background:#00D9FF;
+color:black;
+padding:10px;
+border-radius:12px;
+display:inline-block;
+max-width:80%;
+line-height:1.4;
+">
+${data.reply}
+</span>
+</div>`;
+
+}catch{
+document.getElementById("load").remove();
+chat.innerHTML += `<div style="color:red;">Error</div>`;
+}
+
+// ROTATE FAQ AFTER EVERY MESSAGE
+renderFAQ();
+chat.scrollTop=chat.scrollHeight;
+}
+
+</script>
+<script>
+    const defaultConfig = {
+      report_title: 'Contract Analysis Report',
+      report_subtitle: 'NDA_Agreement_Final.pdf',
+      risk_score: '72',
+      footer_text: '© 2024 ClauseAI · Vaishnavi A. Kanade'
+    };
+
+    function applyConfig(config) {
+      const c = { ...defaultConfig, ...config };
+      document.getElementById('reportSubtitle').textContent = c.report_subtitle;
+      document.getElementById('riskBadge').textContent = `Risk Score: ${c.risk_score}/100`;
+      document.getElementById('footerText').textContent = c.footer_text;
+    }
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange: async (config) => applyConfig(config),
+        mapToCapabilities: (config) => ({
+          recolorables: [],
+          borderables: [],
+          fontEditable: undefined,
+          fontSizeable: undefined
+        }),
+        mapToEditPanelValues: (config) => {
+          const c = { ...defaultConfig, ...config };
+          return new Map([
+            ['report_title', c.report_title],
+            ['report_subtitle', c.report_subtitle],
+            ['risk_score', c.risk_score],
+            ['footer_text', c.footer_text]
+          ]);
+        }
+      });
+    }
+
+    function handleDashboard() {
+      alert('Dashboard view would open here with interactive charts and historical data.');
+    }
+
+    function handleAnalyzeAnother() {
+      alert('Return to contract upload interface.');
+    }
+
+    lucide.createIcons();
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+// Parse the data from Flask safely
+const chartData = JSON.parse('{{ chart_data | tojson | safe }}');
+
+window.onload = function () {
+    const ctx = document.getElementById('riskChart');
+
+    if (!ctx) {
+        console.error("Canvas element 'riskChart' not found in the HTML.");
+        return;
+    }
+
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Legal', 'Finance', 'Compliance'],
+            datasets: [{
+                label: 'Risk Distribution',
+                data: [
+                    chartData.legal || 0,
+                    chartData.finance || 0,
+                    chartData.compliance || 0
+                ],
+                backgroundColor: ['#ef4444', '#f59e0b', '#22c55e'],
+                borderWidth: 0, // Removes the white gap between segments for a cleaner look
+                hoverOffset: 10
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false, // CRITICAL: This prevents the chart from blowing up
+            plugins: {
+                legend: {
+                    display: false // Keeps the chart clean; you already have labels in your UI
+                },
+                tooltip: {
+                    enabled: true
+                }
+            },
+            cutout: '70%' // Makes the doughnut thinner and more modern
+        }
+    });
+};
+</script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9e2f6e0a6168520a',t:'MTc3NDYyNTM1OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
