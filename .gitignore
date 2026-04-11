@@ -21,3 +21,6 @@ serviceAccountKey.json
 # OS files
 .DS_Store
 Thumbs.db
+
+*.pdf
+generated_reports/
