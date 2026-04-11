@@ -36,7 +36,7 @@ google-resumable-media==2.8.2
 googleapis-common-protos==1.72.0
 
 groq==0.37.1
-grpcio==1.78.1
+grpcio==1.62.3
 
 gunicorn==25.3.0
 h11==0.16.0
@@ -76,7 +76,7 @@ pinecone-plugin-assistant==3.0.3
 pinecone-plugin-interface==0.0.7
 
 proto-plus==1.27.1
-protobuf==5.29.6
+protobuf==4.25.3
 
 pyasn1==0.6.2
 pyasn1_modules==0.4.2
