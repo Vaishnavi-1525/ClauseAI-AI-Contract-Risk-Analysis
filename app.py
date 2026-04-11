@@ -31,6 +31,10 @@ from flask import jsonify, session
 # ============================================
 
 app = Flask(__name__)
+
+@app.route("/")
+def home():
+    return "App is running"
 app.secret_key = "SUPER_SECRET_KEY_123"
 app.permanent_session_lifetime = timedelta(days=7)  # ✅ FIX 1: Set session lifetime
 
