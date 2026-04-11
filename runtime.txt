@@ -17,3 +17,5 @@ sentence-transformers
 pinecone-client
 
 markupsafe
+
+python-3.10.13
