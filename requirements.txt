@@ -26,6 +26,7 @@ grpcio>=1.60.0,<2.0.0
 numpy==2.4.4
 scikit-learn==1.8.0
 scipy==1.17.1
+setuptools>=70.0.0
 
 tqdm==4.67.3
 typing_extensions==4.15.0
