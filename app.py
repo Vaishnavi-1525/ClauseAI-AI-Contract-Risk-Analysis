@@ -313,7 +313,7 @@ def analyze():
 @app.route("/chat", methods=["POST"])
 @login_required
 def chat():
-     from llm_setup import groq_llm
+    from llm_setup import groq_llm
     global LAST_RESULTS
 
     user_message = request.json.get("message")
