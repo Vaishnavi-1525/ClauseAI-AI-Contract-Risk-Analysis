@@ -19,7 +19,17 @@ from firebase_config import auth
 from firebase_admin import firestore
 from werkzeug.security import check_password_hash, generate_password_hash
 
-db = firestore.client()
+@app.route("/test")
+def test():
+    return "Server working"
+
+db = None
+
+try:
+    db = firestore.client()
+    print("✅ Firestore connected")
+except Exception as e:
+    print("❌ Firestore init error:", e)
 
 # ============================================
 # FLASK SETUP
