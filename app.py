@@ -19,6 +19,9 @@ from firebase_config import auth
 from firebase_admin import firestore
 from werkzeug.security import check_password_hash, generate_password_hash
 
+
+app = Flask(__name__)
+
 @app.route("/test")
 def test():
     return "Server working"
@@ -35,7 +38,7 @@ except Exception as e:
 # FLASK SETUP
 # ============================================
 
-app = Flask(__name__)
+
 
 # IMPORTANT: FIX - secret key first
 app.secret_key = "SUPER_SECRET_KEY_123"
