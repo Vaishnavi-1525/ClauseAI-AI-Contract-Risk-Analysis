@@ -130,11 +130,16 @@ Output:
 ```
 git clone https://github.com/Vaishnavi-1525/ClauseAI-AI-Contract-Risk-Analysis.git
 
+
+
 ```
 cd ClauseAI-AI-Contract-Risk-Analysis
 
-```
-_ Install dependencies
+
+
+Install dependencies
+
+
 ```
 pip install -r requirements.txt
 
@@ -142,10 +147,16 @@ pip install -r requirements.txt
 - GOOGLE_API_KEY=your_key
 - GROQ_API_KEY=your_key
 - PINECONE_API_KEY=your_key
-  
+
+
+
 Run the app
+
 ```
 python app.py
+
+
+
 
 ---
 
