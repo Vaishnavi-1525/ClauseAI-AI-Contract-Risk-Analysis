@@ -129,12 +129,12 @@ Output:
 
 ```
 git clone https://github.com/Vaishnavi-1525/ClauseAI-AI-Contract-Risk-Analysis.git
-
+```
 
 
 ```
 cd ClauseAI-AI-Contract-Risk-Analysis
-
+```
 
 
 Install dependencies
@@ -142,6 +142,8 @@ Install dependencies
 
 ```
 pip install -r requirements.txt
+```
+
 
 - Setup Environment Variables (.env)
 - GOOGLE_API_KEY=your_key
@@ -154,7 +156,7 @@ Run the app
 
 ```
 python app.py
-
+```
 
 
 
