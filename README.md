@@ -122,7 +122,7 @@ Output:
 ### 🔗 Live Demo
 
 - 🌐 https://clauseai-ai-contract-risk-analysis.onrender.com
-
+- 🌐 https://viddynest.com/v/oYaKou1yTS    (Demo Video)
 ---
 
 # 📦 Installation
